@@ -24,4 +24,9 @@
 - Action: Suspend one-tweet mode on `/notifications` and `/i/notifications` routes.
 - Confidence: high
 
+**2026-06-26 — X profiles**
+- Observation: Profile pages use tweet containers for profile timelines, and one-at-a-time hiding makes profiles look like only the latest tweet exists.
+- Action: Suspend one-tweet mode on `/:username` and common profile tab routes such as `/with_replies`, `/media`, `/likes`, `/highlights`, and `/articles`.
+- Confidence: high
+
 ## What Has Failed

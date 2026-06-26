@@ -197,7 +197,11 @@
   }
 
   function isModeActive() {
-    return storageReady && enabled && !isTweetDetailPage() && !isNotificationsPage();
+    return storageReady &&
+      enabled &&
+      !isTweetDetailPage() &&
+      !isNotificationsPage() &&
+      !isProfilePage();
   }
 
   function isTweetDetailPage() {
@@ -206,6 +210,37 @@
 
   function isNotificationsPage() {
     return /^\/(?:i\/)?notifications(?:\/|$)/.test(location.pathname);
+  }
+
+  function isProfilePage() {
+    const segments = location.pathname
+      .split("/")
+      .filter(Boolean);
+    const reservedRoutes = new Set([
+      "compose",
+      "explore",
+      "home",
+      "i",
+      "jobs",
+      "messages",
+      "notifications",
+      "search",
+      "settings"
+    ]);
+    const profileTabs = new Set([
+      "",
+      "articles",
+      "highlights",
+      "likes",
+      "media",
+      "with_replies"
+    ]);
+
+    if (!segments.length || reservedRoutes.has(segments[0])) {
+      return false;
+    }
+
+    return segments.length === 1 || (segments.length === 2 && profileTabs.has(segments[1]));
   }
 
   function getTweetArticles() {
