@@ -1,0 +1,73 @@
+.uno-twitter-hidden-tweet {
+  pointer-events: none !important;
+  user-select: none !important;
+  visibility: hidden !important;
+}
+
+.uno-twitter-current-tweet {
+  scroll-margin-top: 88px;
+}
+
+.uno-twitter-controls {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(15, 20, 25, 0.16);
+  border-radius: 999px;
+  bottom: 16px;
+  box-shadow: 0 8px 24px rgba(15, 20, 25, 0.14);
+  color: rgb(15, 20, 25);
+  display: flex;
+  font: 13px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  gap: 6px;
+  padding: 6px;
+  position: fixed;
+  right: 16px;
+  z-index: 2147483647;
+}
+
+.uno-twitter-controls[hidden] {
+  display: none !important;
+}
+
+.uno-twitter-controls button {
+  background: transparent;
+  border: 1px solid rgba(15, 20, 25, 0.18);
+  border-radius: 999px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  min-height: 30px;
+  padding: 5px 10px;
+}
+
+.uno-twitter-controls button:hover:not(:disabled),
+.uno-twitter-controls button:focus-visible {
+  background: rgba(29, 155, 240, 0.12);
+  border-color: rgba(29, 155, 240, 0.5);
+  outline: none;
+}
+
+.uno-twitter-controls button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.uno-twitter-count {
+  min-width: 46px;
+  padding: 0 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  .uno-twitter-controls {
+    background: rgba(22, 24, 28, 0.94);
+    border-color: rgba(239, 243, 244, 0.18);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.34);
+    color: rgb(239, 243, 244);
+  }
+
+  .uno-twitter-controls button {
+    border-color: rgba(239, 243, 244, 0.22);
+  }
+}

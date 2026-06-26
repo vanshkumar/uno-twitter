@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "Uno Twitter",
+  "description": "Adds a one tweet at a time viewing mode to X/Twitter.",
+  "version": "0.1.0",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "Uno Twitter",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://x.com/*",
+        "https://twitter.com/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
