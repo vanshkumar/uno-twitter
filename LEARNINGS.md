@@ -14,6 +14,11 @@
 - Action: Hide non-current tweets without removing their layout space, and only scroll for more content from the explicit Next-at-end path.
 - Confidence: high
 
+**2026-06-26 — X feed conversation previews**
+- Observation: X home/feed can render reply or thread context as adjacent tweet articles, sometimes across different authors, with a vertical connector on the avatar rail.
+- Action: Treat only strictly adjacent timeline cells with avatar-rail connector cues as one navigation group; do not infer grouping from shared authorship or nearby tweet articles alone.
+- Confidence: medium
+
 **2026-06-26 — X tweet detail pages**
 - Observation: Tweet detail URLs use the same `article[data-testid="tweet"]` containers for the main tweet and replies, so one-at-a-time hiding on `/status/:id` pages hides replies.
 - Action: Suspend one-tweet mode on tweet-detail URLs and clear any hidden tweet classes there.
