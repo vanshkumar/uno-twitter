@@ -8,6 +8,10 @@
   scroll-margin-top: 88px;
 }
 
+.uno-twitter-hidden-discover-more {
+  display: none !important;
+}
+
 .uno-twitter-controls {
   align-items: center;
   background: rgba(255, 255, 255, 0.94);

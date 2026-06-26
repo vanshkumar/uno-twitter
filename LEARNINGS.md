@@ -29,4 +29,9 @@
 - Action: Suspend one-tweet mode on `/:username` and common profile tab routes such as `/with_replies`, `/media`, `/likes`, `/highlights`, and `/articles`.
 - Confidence: high
 
+**2026-06-26 — X tweet detail Discover more**
+- Observation: Tweet detail pages append a "Discover more" recommendation module below replies, separate from the reply articles that need to stay visible.
+- Action: On tweet-detail routes, hide only the module headed "Discover more" with its own class instead of reusing one-tweet article hiding.
+- Confidence: medium
+
 ## What Has Failed

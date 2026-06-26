@@ -5,6 +5,8 @@
   const CONTROLS_ATTR = "data-uno-twitter-controls";
   const HIDDEN_CLASS = "uno-twitter-hidden-tweet";
   const CURRENT_CLASS = "uno-twitter-current-tweet";
+  const DISCOVER_MORE_CLASS = "uno-twitter-hidden-discover-more";
+  const DISCOVER_MORE_TEXT = "discover more";
   const DEFAULT_ENABLED = true;
   const LOAD_MORE_TIMEOUT_MS = 9000;
   const LOAD_MORE_RETRY_MS = 450;
@@ -19,6 +21,7 @@
   let currentKey = null;
   let currentIndex = 0;
   let knownTweets = new Set();
+  let knownDiscoverMoreElements = new Set();
   let pendingNext = false;
   let pendingNextDeadline = 0;
   let pendingNextTimer = 0;
@@ -121,7 +124,11 @@
         continue;
       }
 
-      if (node.matches(TWEET_SELECTOR) || node.querySelector(TWEET_SELECTOR)) {
+      if (
+        node.matches(TWEET_SELECTOR) ||
+        node.querySelector(TWEET_SELECTOR) ||
+        nodeContainsDiscoverMoreMarker(node)
+      ) {
         return true;
       }
     }
@@ -145,6 +152,7 @@
     ensureControls();
 
     const routeChanged = handleRouteChange();
+    updateDiscoverMoreVisibility();
     const tweets = getTweetArticles();
     const modeActive = isModeActive();
     releaseTweetsNoLongerPresent(tweets);
@@ -193,6 +201,7 @@
     shouldChooseVisibleTweet = true;
     clearPendingNext();
     clearTweetClasses();
+    clearDiscoverMoreElements();
     return true;
   }
 
@@ -241,6 +250,112 @@
     }
 
     return segments.length === 1 || (segments.length === 2 && profileTabs.has(segments[1]));
+  }
+
+  function updateDiscoverMoreVisibility() {
+    if (!isTweetDetailPage()) {
+      clearDiscoverMoreElements();
+      return;
+    }
+
+    const elements = findDiscoverMoreElements();
+    const currentElements = new Set(elements);
+
+    for (const element of knownDiscoverMoreElements) {
+      if (!currentElements.has(element)) {
+        element.classList.remove(DISCOVER_MORE_CLASS);
+        element.removeAttribute("aria-hidden");
+      }
+    }
+
+    knownDiscoverMoreElements = currentElements;
+
+    for (const element of elements) {
+      element.classList.add(DISCOVER_MORE_CLASS);
+      element.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  function clearDiscoverMoreElements() {
+    for (const element of knownDiscoverMoreElements) {
+      element.classList.remove(DISCOVER_MORE_CLASS);
+      element.removeAttribute("aria-hidden");
+    }
+
+    knownDiscoverMoreElements = new Set();
+  }
+
+  function findDiscoverMoreElements() {
+    const root = getFeedRoot();
+    const elements = new Set();
+
+    for (const marker of findDiscoverMoreMarkers(root)) {
+      const section = findDiscoverMoreSection(marker, root);
+
+      if (section) {
+        elements.add(section);
+        continue;
+      }
+
+      for (const element of findDiscoverMoreSiblingElements(marker, root)) {
+        elements.add(element);
+      }
+    }
+
+    return [...elements];
+  }
+
+  function findDiscoverMoreMarkers(root) {
+    return [...root.querySelectorAll('[role="heading"], h1, h2, h3, span')].filter((element) => {
+      return normalizeText(element.textContent) === DISCOVER_MORE_TEXT && !element.closest(TWEET_SELECTOR);
+    });
+  }
+
+  function findDiscoverMoreSection(marker, root) {
+    for (let element = marker; element && element !== root; element = element.parentElement) {
+      if (
+        element.querySelector(TWEET_SELECTOR) &&
+        normalizeText(element.textContent).startsWith(DISCOVER_MORE_TEXT)
+      ) {
+        return element;
+      }
+    }
+
+    return null;
+  }
+
+  function findDiscoverMoreSiblingElements(marker, root) {
+    for (let element = marker; element && element !== root; element = element.parentElement) {
+      const parent = element.parentElement;
+
+      if (!parent) {
+        continue;
+      }
+
+      const siblings = [...parent.children];
+      const startIndex = siblings.indexOf(element);
+      const followingSiblings = siblings.slice(startIndex + 1);
+      const hasFollowingTweet = followingSiblings.some((sibling) => {
+        return sibling.matches(TWEET_SELECTOR) || sibling.querySelector(TWEET_SELECTOR);
+      });
+
+      if (hasFollowingTweet) {
+        return siblings.slice(startIndex);
+      }
+    }
+
+    return [marker];
+  }
+
+  function nodeContainsDiscoverMoreMarker(node) {
+    return normalizeText(node.textContent).includes(DISCOVER_MORE_TEXT);
+  }
+
+  function normalizeText(text) {
+    return String(text || "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
   }
 
   function getTweetArticles() {
