@@ -16,6 +16,7 @@
   const CONVERSATION_CONNECTOR_MAX_WIDTH = 8;
   const CONVERSATION_CONNECTOR_X_TOLERANCE = 14;
   const CONVERSATION_CONNECTOR_EDGE_TOLERANCE = 8;
+  const TIMELINE_CELL_GAP_TOLERANCE = 16;
 
   const nodeKeys = new WeakMap();
   let nextNodeKey = 1;
@@ -418,15 +419,38 @@
 
     if (previousCell.parentElement && previousCell.parentElement === nextCell.parentElement) {
       const siblings = [...previousCell.parentElement.children];
+      const previousIndex = siblings.indexOf(previousCell);
+      const nextIndex = siblings.indexOf(nextCell);
 
-      return siblings.indexOf(nextCell) === siblings.indexOf(previousCell) + 1;
+      if (nextIndex <= previousIndex) {
+        return false;
+      }
+
+      if (nextIndex === previousIndex + 1) {
+        return true;
+      }
+
+      return siblings
+        .slice(previousIndex + 1, nextIndex)
+        .every(isIgnorableBetweenTweetCells) &&
+        areCellsVisuallyAdjacent(previousCell, nextCell);
     }
 
+    return areCellsVisuallyAdjacent(previousCell, nextCell);
+  }
+
+  function isIgnorableBetweenTweetCells(element) {
+    return !element.matches(TWEET_SELECTOR) &&
+      !element.querySelector(TWEET_SELECTOR) &&
+      !normalizeText(element.textContent);
+  }
+
+  function areCellsVisuallyAdjacent(previousCell, nextCell) {
     const previousRect = previousCell.getBoundingClientRect();
     const nextRect = nextCell.getBoundingClientRect();
     const verticalGap = nextRect.top - previousRect.bottom;
 
-    return verticalGap >= -1 && verticalGap <= 16;
+    return verticalGap >= -1 && verticalGap <= TIMELINE_CELL_GAP_TOLERANCE;
   }
 
   function getTimelineCell(article) {
@@ -436,13 +460,16 @@
   function hasConversationConnectorCue(article, direction) {
     const avatarRect = getTweetAvatarRect(article);
     const articleRect = article.getBoundingClientRect();
+    const searchRoot = getTimelineCell(article);
+    const searchRootRect = searchRoot.getBoundingClientRect();
+    const cueBoundsRect = hasUsableRect(searchRootRect) ? searchRootRect : articleRect;
 
-    if (!avatarRect || !hasUsableRect(articleRect)) {
+    if (!avatarRect || !hasUsableRect(articleRect) || !hasUsableRect(cueBoundsRect)) {
       return false;
     }
 
     const avatarCenterX = avatarRect.left + (avatarRect.width / 2);
-    const elements = article.querySelectorAll("div, span");
+    const elements = searchRoot.querySelectorAll("div, span");
 
     for (const element of elements) {
       if (!hasConnectorPaint(element)) {
@@ -454,11 +481,11 @@
           continue;
         }
 
-        if (direction === "previous" && isConnectorAboveAvatar(rect, avatarRect, articleRect)) {
+        if (direction === "previous" && isConnectorAboveAvatar(rect, avatarRect, cueBoundsRect)) {
           return true;
         }
 
-        if (direction === "next" && isConnectorBelowAvatar(rect, avatarRect, articleRect)) {
+        if (direction === "next" && isConnectorBelowAvatar(rect, avatarRect, cueBoundsRect)) {
           return true;
         }
       }

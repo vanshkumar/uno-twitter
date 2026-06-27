@@ -19,6 +19,11 @@
 - Action: Treat only strictly adjacent timeline cells with avatar-rail connector cues as one navigation group; do not infer grouping from shared authorship or nearby tweet articles alone.
 - Confidence: medium
 
+**2026-06-26 — X conversation connector DOM**
+- Observation: X can draw avatar-rail connector elements outside `article[data-testid="tweet"]` in the surrounding `cellInnerDiv`, and can place empty timeline scaffolding cells between connected tweet articles.
+- Action: Scan the tweet's timeline cell for connector geometry and allow only empty non-tweet cells between adjacent conversation articles before grouping them.
+- Confidence: medium
+
 **2026-06-26 — X tweet detail pages**
 - Observation: Tweet detail URLs use the same `article[data-testid="tweet"]` containers for the main tweet and replies, so one-at-a-time hiding on `/status/:id` pages hides replies.
 - Action: Suspend one-tweet mode on tweet-detail URLs and clear any hidden tweet classes there.
